@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   
+  email     String   @unique
+  password  String
+  active Boolean @default(false)
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetToken PasswordResetToken[]
+  avatarUrl String?
+  videos    Video[]
+  comments  Comment[]
+  likes     Like[]
+  followers Follow[] @relation("followers")
+  following Follow[] @relation("following")
+  createdAt DateTime @default(now())
+}
+
+model Video {
+  id           Int      @id @default(autoincrement())
+  title        String
+  url          String
+  thumbnailUrl String?
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  comments     Comment[]
+  likes        Like[]
+  createdAt    DateTime @default(now())
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  video     Video    @relation(fields: [videoId], references: [id])
+  videoId   Int
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        Int   @id @default(autoincrement())
+  user      User  @relation(fields: [userId], references: [id])
+  userId    Int
+  video     Video @relation(fields: [videoId], references: [id])
+  videoId   Int
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  follower    User @relation("following", fields: [followerId], references: [id])
+  followerId  Int
+  following   User @relation("followers", fields: [followingId], references: [id])
+  followingId Int
+}
+
+model EmailVerificationToken {
+  token     String   @id
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  expiresAt DateTime
+}
+
+model PasswordResetToken {
+  token     String   @id
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  expiresAt DateTime
+}
