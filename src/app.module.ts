@@ -5,9 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AuthMiddleware } from './middleware/checktoken.middleware';
 import { CheckActiveMiddleware } from './middleware/checkactive.middleware';
+import { VideoModule } from './video/video.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
-  imports: [AuthModule, UserModule],
+  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule],
   controllers: [AppController],
   providers: [AppService],
 })
