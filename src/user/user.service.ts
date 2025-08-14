@@ -29,13 +29,13 @@ export class UserService {
     async updateUser(email: string, updateData: any) {
         try {
             if (updateData && (updateData.password || updateData.active || updateData.id)) {
-                throw new Error('Không thể cập nhật các trường này');
+                return { success: false, message: 'Không thể cập nhật các trường này' };
             }
             const user = await this.prisma.user.update({
                 where: { email },
                 data: updateData,
             });
-            return { success: true, user };
+            return { success: true, user, message: 'Cập nhật người dùng thành công' };
         } catch (error) {
             return { success: false, message: error.message };
         }
