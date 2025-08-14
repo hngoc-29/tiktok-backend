@@ -4,6 +4,7 @@ import type { Request } from 'express';
 
 export interface UserType {
     id?: number;
+    fullname?: string;
     username?: string;
     email: string;
     password: string;

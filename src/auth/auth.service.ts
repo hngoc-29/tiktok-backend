@@ -27,7 +27,7 @@ export class AuthService {
         // So sánh mật khẩu
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            throw new UnauthorizedException('Mật khẩu không đúng');
+            throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
         }
 
         // Tạo JWT token
@@ -41,7 +41,7 @@ export class AuthService {
     }
 
     async signUp(body): Promise<any> {
-        const { username, email, password } = body;
+        const { fullname, username, email, password } = body;
 
         // Kiểm tra xem user đã tồn tại chưa
         const existingUser = await this.prisma.user.findFirst({
@@ -56,6 +56,10 @@ export class AuthService {
             throw new UnauthorizedException('Người dùng đã tồn tại');
         }
 
+        if (password.length < 6) {
+            throw new UnauthorizedException('Mật khẩu phải có ít nhất 6 ký tự');
+        }
+
         // Mã hóa password
         const saltOrRounds = 10;
         const hash = await bcrypt.hash(password, saltOrRounds);
@@ -63,6 +67,7 @@ export class AuthService {
         // Tạo user mới
         const user = await this.prisma.user.create({
             data: {
+                fullname,
                 username,
                 email,
                 password: hash,
@@ -117,7 +122,7 @@ export class AuthService {
                     <a href="${verificationUrl}">${verificationUrl}</a>
                 `,
             });
-            return { success: true };
+            return { success: true, message: 'Đã gửi email xác thực' };
         } catch (error) {
             return { success: false, message: 'Gửi email xác thực thất bại' };
         }
@@ -128,6 +133,9 @@ export class AuthService {
         const user = await this.prisma.user.findFirst({ where: { email } });
         if (!user) {
             return { success: false, message: 'Không tìm thấy người dùng' };
+        }
+        if (user.active) {
+            return { success: true, message: 'Tài khoản đã được kích hoạt' };
         }
         // Tạo token
         const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -164,7 +172,7 @@ export class AuthService {
                     <a href="${resetUrl}">${resetUrl}</a>
                 `,
             });
-            return { success: true };
+            return { success: true, message: 'Đã gửi email đặt lại mật khẩu' };
         } catch (error) {
             return { success: false, message: 'Gửi email đặt lại mật khẩu thất bại' };
         }
@@ -175,6 +183,9 @@ export class AuthService {
         const resetToken = await this.prisma.passwordResetToken.findUnique({ where: { token } });
         if (!resetToken || resetToken.expiresAt < new Date() && resetToken.userId !== userId) {
             return { success: false, message: 'Token không hợp lệ hoặc đã hết hạn' };
+        }
+        if (newPassword.length < 6) {
+            return { success: false, message: 'Mật khẩu phải có ít nhất 6 ký tự' };
         }
         // Mã hóa mật khẩu mới
         const hash = await bcrypt.hash(newPassword, 10);
