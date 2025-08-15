@@ -13,12 +13,21 @@ cloudinary.config({
 
 @Injectable()
 export class CloudinaryService {
-    async uploadFile(file: Express.Multer.File): Promise<CloudinaryResponse> {
+    async uploadFile(
+        file: Express.Multer.File,
+        folder: string,
+        resourceType: 'image' | 'video' = 'image',
+    ): Promise<CloudinaryResponse> {
         if (!file || !file.buffer) {
             throw new Error('File is missing or invalid');
-        }
+        };
+
         return new Promise<CloudinaryResponse>((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    resource_type: resourceType,
+                    folder: folder,
+                },
                 (error, result) => {
                     if (error) return reject(error);
                     resolve(result as CloudinaryResponse);

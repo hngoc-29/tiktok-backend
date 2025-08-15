@@ -5,7 +5,6 @@ import { Request, Response, NextFunction } from 'express';
 export class CheckActiveMiddleware implements NestMiddleware {
     use(req: Request, res: Response, next: NextFunction) {
         const user = req['user'];
-        console.log('CheckActiveMiddleware:', user);
         if (!user || user.active !== true) {
             throw new ForbiddenException('Tài khoản chưa được kích hoạt');
         }

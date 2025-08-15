@@ -25,11 +25,13 @@ export class AppModule {
         { path: 'auth/send-reset-email', method: RequestMethod.POST },
         { path: 'auth/reset-password', method: RequestMethod.POST },
         //user
-        { path: 'user', method: RequestMethod.PUT }
+        { path: 'user', method: RequestMethod.PUT },
+        { path: 'video', method: RequestMethod.POST }
       )
       .apply(CheckActiveMiddleware)
       .forRoutes(
-        { path: 'user', method: RequestMethod.PUT }
+        { path: 'user', method: RequestMethod.PUT },
+        { path: 'video', method: RequestMethod.POST }
       );
   }
 }
