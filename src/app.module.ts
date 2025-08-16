@@ -10,9 +10,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { LikeModule } from './like/like.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowModule } from './follow/follow.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule, FollowModule],
+  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule, FollowModule, NotificationModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -87,3 +87,11 @@ model PasswordResetToken {
   userId    Int
   expiresAt DateTime
 }
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   // HTML hoặc Markdown
+  active    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
