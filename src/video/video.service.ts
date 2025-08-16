@@ -68,6 +68,9 @@ export class VideoService {
     }
 
     async fetchVideos(path?: string): Promise<any> {
+        if (!path) {
+            return { success: false, message: 'Thiếu path' };
+        }
         const video = await this.prisma.video.findUnique({
             where: { path },
             select: {
@@ -102,5 +105,22 @@ export class VideoService {
             ORDER BY RAND()
             LIMIT ${n}
         `);
+    }
+
+    async fetchVideosByUserId(userId): Promise<object | { success: boolean, message: string }> {
+        try {
+            const videos = await this.prisma.video.findMany({
+                where: { userId: Number(userId) },
+            });
+            return {
+                success: true,
+                videos
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: 'Lỗi khi lấy video'
+            };
+        }
     }
 }

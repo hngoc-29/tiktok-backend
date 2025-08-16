@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 export interface UserType {
     id?: number;
@@ -7,11 +9,15 @@ export interface UserType {
     username?: string;
     email: string;
     password: string;
+    avatarUrl?: string;
 }
 
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) { }
+    constructor(
+        private readonly userService: UserService,
+        private readonly cloudinaryService: CloudinaryService
+    ) { }
 
     @Get()
     findProducts(@Query('username') username: string) {
@@ -19,8 +25,20 @@ export class UserController {
     }
 
     @Put()
-    updateUser(@Req() req: Request, @Body() updateData: UserType) {
+    @UseInterceptors(FileInterceptor('avatar'))
+    async updateUser(
+        @Req() req: Request,
+        @Body() updateData: UserType,
+        @UploadedFile() file: Express.Multer.File
+    ) {
         const email = req['user']?.email;
+
+        if (file) {
+            // ✅ Truyền nguyên object file, không dùng file.path
+            const uploadResult = await this.cloudinaryService.uploadFile(file, 'tiktok/avatar', 'image');
+            updateData.avatarUrl = uploadResult.secure_url;
+        }
+
         return this.userService.updateUser(email, updateData);
     }
 }

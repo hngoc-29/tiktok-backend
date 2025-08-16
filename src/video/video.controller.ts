@@ -44,6 +44,13 @@ export class VideoController {
         const ids = excludeIds
             ? excludeIds.split(',').map(id => Number(id)).filter(id => !isNaN(id))
             : [];
-        return this.videoService.fetchVideosRandom(ids, n ? Number(n) : 3);
+        return this.videoService.fetchVideosRandom(ids, n ? Number(n) : 1);
+    }
+    @Get('user')
+    async getUserVideos(@Query('userId') userId: string) {
+        if (!userId) {
+            return { success: false, message: 'Thiếu userId' };
+        }
+        return this.videoService.fetchVideosByUserId(userId);
     }
 }
