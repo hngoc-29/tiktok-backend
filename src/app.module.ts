@@ -8,9 +8,10 @@ import { CheckActiveMiddleware } from './middleware/checkactive.middleware';
 import { VideoModule } from './video/video.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
-  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule],
+  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -32,6 +33,9 @@ export class AppModule {
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
         { path: 'like/video-user', method: RequestMethod.GET },
+        //comment
+        { path: 'comment/create', method: RequestMethod.POST },
+        { path: 'comment/delete', method: RequestMethod.POST },
       )
       .apply(CheckActiveMiddleware)
       .forRoutes(
@@ -40,6 +44,8 @@ export class AppModule {
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
         { path: 'like/video-user', method: RequestMethod.GET },
+        { path: 'comment/create', method: RequestMethod.POST },
+        { path: 'comment/delete', method: RequestMethod.POST },
       );
   }
 }
