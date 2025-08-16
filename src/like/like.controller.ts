@@ -48,4 +48,15 @@ export class LikeController {
         }
         return this.likeService.getVideoUserLike(Number(videoId), userId);
     }
+    @Get('list')
+    async listLikes(@Req() req: Request, @Query('skip') skip: number = 0, @Query('take') take: number = 10) {
+        const userId = req["user"]?.id;
+        if (!userId) {
+            return {
+                success: false,
+                message: 'User ID is required',
+            };
+        }
+        return this.likeService.listLikes(userId, Number(skip), Number(take));
+    }
 }

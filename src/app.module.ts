@@ -33,6 +33,7 @@ export class AppModule {
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
         { path: 'like/video-user', method: RequestMethod.GET },
+        { path: 'like/list', method: RequestMethod.GET },
         //comment
         { path: 'comment/create', method: RequestMethod.POST },
         { path: 'comment/delete', method: RequestMethod.POST },
@@ -44,6 +45,7 @@ export class AppModule {
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
         { path: 'like/video-user', method: RequestMethod.GET },
+        { path: 'like/list', method: RequestMethod.GET },
         { path: 'comment/create', method: RequestMethod.POST },
         { path: 'comment/delete', method: RequestMethod.POST },
       );

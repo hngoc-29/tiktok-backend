@@ -91,4 +91,29 @@ export class LikeService {
             return { message: 'Error retrieving user like status', error: error.message };
         }
     }
+    async listLikes(userId: number, skip = 0, take = 10) {
+        try {
+            const likes = await this.prismaService.like.findMany({
+                where: { userId },
+                orderBy: {
+                    id: 'desc', // 👈 id lớn hơn thì mới hơn
+                },
+                skip,
+                take,
+                include: {
+                    video: true, // lấy luôn video từ like
+                },
+            });
+
+            return {
+                message: 'User likes retrieved successfully',
+                data: likes.map(like => like.video), // chỉ trả về video
+            };
+        } catch (error) {
+            return {
+                message: 'Error retrieving user likes',
+                error: error.message,
+            };
+        }
+    }
 }
