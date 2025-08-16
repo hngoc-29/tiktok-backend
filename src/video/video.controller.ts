@@ -46,6 +46,11 @@ export class VideoController {
             : [];
         return this.videoService.fetchVideosRandom(ids, n ? Number(n) : 1);
     }
+    @Get('random-following-video')
+    async getRandomFollowingVideos(@Req() req: any, @Query('skip') skip: number = 0, @Query('take') take: number = 1) {
+        const userId = req.user.id;
+        return this.videoService.fetchFollowingVideos(userId, Number(skip), Number(take));
+    }
     @Get('user')
     async getUserVideos(@Query('userId') userId: string) {
         if (!userId) {

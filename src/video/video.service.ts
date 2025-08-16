@@ -107,6 +107,42 @@ export class VideoService {
         `);
     }
 
+    async fetchFollowingVideos(userId: number, skip = 0, take = 10) {
+        try {
+            // Lấy danh sách ID những user mà mình follow
+            const followingIds = await this.prisma.follow.findMany({
+                where: { followerId: userId },
+                select: { followingId: true },
+            }).then(follows => follows.map(f => f.followingId));
+
+            // Nếu không follow ai thì trả rỗng luôn
+            if (followingIds.length === 0) {
+                return { success: true, data: [] };
+            }
+
+            // Lấy video của những user đó
+            const followingVideos = await this.prisma.video.findMany({
+                where: {
+                    userId: { in: followingIds },
+                },
+                orderBy: { createdAt: 'desc' }, // mới nhất trước
+                skip,
+                take,
+            });
+
+            return {
+                success: true,
+                data: followingVideos,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: 'Lỗi khi lấy video theo người theo dõi',
+                error: error.message,
+            };
+        }
+    }
+
     async fetchVideosByUserId(userId): Promise<object | { success: boolean, message: string }> {
         try {
             const videos = await this.prisma.video.findMany({

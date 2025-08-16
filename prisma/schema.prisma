@@ -70,6 +70,8 @@ model Follow {
   followerId  Int
   following   User @relation("followers", fields: [followingId], references: [id])
   followingId Int
+
+  @@unique([followerId, followingId])
 }
 
 model EmailVerificationToken {
