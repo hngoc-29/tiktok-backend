@@ -7,9 +7,10 @@ import { AuthMiddleware } from './middleware/checktoken.middleware';
 import { CheckActiveMiddleware } from './middleware/checkactive.middleware';
 import { VideoModule } from './video/video.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
-  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule],
+  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -26,12 +27,19 @@ export class AppModule {
         { path: 'auth/reset-password', method: RequestMethod.POST },
         //user
         { path: 'user', method: RequestMethod.PUT },
-        { path: 'video', method: RequestMethod.POST }
+        { path: 'video', method: RequestMethod.POST },
+        //like
+        { path: 'like/add', method: RequestMethod.POST },
+        { path: 'like/remove', method: RequestMethod.POST },
+        { path: 'like/video-user', method: RequestMethod.GET },
       )
       .apply(CheckActiveMiddleware)
       .forRoutes(
         { path: 'user', method: RequestMethod.PUT },
-        { path: 'video', method: RequestMethod.POST }
+        { path: 'video', method: RequestMethod.POST },
+        { path: 'like/add', method: RequestMethod.POST },
+        { path: 'like/remove', method: RequestMethod.POST },
+        { path: 'like/video-user', method: RequestMethod.GET },
       );
   }
 }
