@@ -31,7 +31,7 @@ export class AuthService {
         }
 
         // Tạo JWT token
-        const payload = { id: user.id, email: user.email, username: user.username, active: user.active };
+        const payload = { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
         const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -81,8 +81,8 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
-        const newToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        const newRefreshToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const newToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const newRefreshToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '7d' });
         return { user, token: newToken, refreshToken: newRefreshToken };
     }
 
@@ -105,7 +105,7 @@ export class AuthService {
         await this.prisma.emailVerificationToken.deleteMany({
             where: { userId: emailToken.userId }
         });
-        const payload = { id: user.id, email: user.email, username: user.username, active: user.active };
+        const payload = { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin };
         const accesstoken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
         const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
         return { message: 'Xác thực email thành công', token: accesstoken, refreshToken };

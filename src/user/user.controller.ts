@@ -10,6 +10,7 @@ export interface UserType {
     email: string;
     password: string;
     avatarUrl?: string;
+    isAdmin?: boolean;
 }
 
 @Controller('user')

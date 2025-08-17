@@ -28,7 +28,7 @@ export class UserService {
 
     async updateUser(email: string, updateData: any) {
         try {
-            if (updateData && (updateData.password || updateData.active || updateData.id)) {
+            if (updateData && (updateData.password || updateData.active || updateData.id || updateData.isAdmin)) {
                 return { success: false, message: 'Không thể cập nhật các trường này' };
             }
             const user = await this.prisma.user.update({

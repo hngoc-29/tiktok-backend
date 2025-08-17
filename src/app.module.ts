@@ -11,6 +11,7 @@ import { LikeModule } from './like/like.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowModule } from './follow/follow.module';
 import { NotificationModule } from './notification/notification.module';
+import { CheckAdminMiddleware } from './middleware/checkAdmin.middleware';
 
 @Module({
   imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule, FollowModule, NotificationModule],
@@ -46,6 +47,11 @@ export class AppModule {
         { path: 'follow/unfollowUser', method: RequestMethod.POST },
         { path: 'follow/getFollowers', method: RequestMethod.GET },
         { path: 'follow/getFollowing', method: RequestMethod.GET },
+        //notification
+        { path: 'notification/create', method: RequestMethod.POST },
+        { path: 'notification/delete/:id', method: RequestMethod.POST },
+        { path: 'notification/update/:id', method: RequestMethod.POST },
+        { path: 'notification/update-active/:id', method: RequestMethod.POST },
       )
       .apply(CheckActiveMiddleware)
       .forRoutes(
@@ -67,6 +73,13 @@ export class AppModule {
         { path: 'follow/unfollowUser', method: RequestMethod.POST },
         { path: 'follow/getFollowers', method: RequestMethod.GET },
         { path: 'follow/getFollowing', method: RequestMethod.GET },
-      );
+      )
+      .apply(CheckAdminMiddleware)
+      .forRoutes(
+        { path: 'notification/create', method: RequestMethod.POST },
+        { path: 'notification/delete/:id', method: RequestMethod.POST },
+        { path: 'notification/update/:id', method: RequestMethod.POST },
+        { path: 'notification/update-active/:id', method: RequestMethod.POST },
+      )
   }
 }

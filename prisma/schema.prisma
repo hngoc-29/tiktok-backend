@@ -23,6 +23,7 @@ model User {
   active Boolean @default(false)
   emailVerificationTokens EmailVerificationToken[]
   passwordResetToken PasswordResetToken[]
+  isAdmin   Boolean  @default(false)
   avatarUrl String?
   videos    Video[]
   comments  Comment[]
