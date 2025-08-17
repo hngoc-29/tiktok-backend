@@ -19,8 +19,8 @@ export class CloudinaryService {
         resourceType: 'image' | 'video' = 'image',
     ): Promise<CloudinaryResponse> {
         if (!file || !file.buffer) {
-            throw new Error('File is missing or invalid');
-        };
+            throw new Error('Tệp không hợp lệ hoặc không có dữ liệu.');
+        }
 
         return new Promise<CloudinaryResponse>((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(

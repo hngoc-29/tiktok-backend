@@ -23,7 +23,7 @@ export class CommentService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error creating comment',
+                message: 'Tạo bình luận thất bại',
                 error: error.message,
             };
         }
@@ -38,7 +38,7 @@ export class CommentService {
             if (!comment || comment.userId !== commentData.userId) {
                 return {
                     success: false,
-                    message: 'You cannot delete this comment',
+                    message: 'Bạn không thể xóa bình luận này',
                 };
             }
 
@@ -46,11 +46,11 @@ export class CommentService {
                 where: { id: commentData.commentId },
             });
 
-            return { success: true, message: 'Comment deleted' };
+            return { success: true, message: 'Đã xóa bình luận' };
         } catch (error) {
             return {
                 success: false,
-                message: 'Error deleting comment',
+                message: 'Lỗi khi xóa bình luận',
                 error: error.message,
             };
         }
@@ -81,7 +81,7 @@ export class CommentService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error counting comments',
+                message: 'Lỗi khi đếm bình luận',
                 error: error.message,
             };
         }

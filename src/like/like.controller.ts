@@ -10,7 +10,7 @@ export class LikeController {
         if (!data || !data.videoId) {
             return {
                 success: false,
-                message: 'Video ID is required',
+                message: 'Video không hợp lệ',
             };
         }
         const likeData = { videoId: data.videoId, userId: Number(req['user']?.id) };
@@ -21,7 +21,7 @@ export class LikeController {
         if (!data || !data.videoId) {
             return {
                 success: false,
-                message: 'Video ID is required',
+                message: '',
             };
         }
         const likeData = { videoId: data.videoId, userId: Number(req['user']?.id) };
@@ -32,7 +32,7 @@ export class LikeController {
         if (!videoId) {
             return {
                 success: false,
-                message: 'Video ID is required',
+                message: 'Video không hợp lệ',
             };
         }
         return this.likeService.getLikeCount(Number(videoId));
@@ -43,7 +43,7 @@ export class LikeController {
         if (!userId) {
             return {
                 success: false,
-                message: 'User ID is required',
+                message: 'Người dùng không hợp lệ',
             };
         }
         return this.likeService.getVideoUserLike(Number(videoId), userId);
@@ -54,7 +54,7 @@ export class LikeController {
         if (!userId) {
             return {
                 success: false,
-                message: 'User ID is required',
+                message: 'Người dùng không hợp lệ',
             };
         }
         return this.likeService.listLikes(userId, Number(skip), Number(take));

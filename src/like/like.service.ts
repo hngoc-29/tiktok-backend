@@ -1,11 +1,11 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/database';
 
 @Injectable()
 export class LikeService {
     constructor(private readonly prismaService: PrismaService) { }
 
-    async addLike(likeData: { videoId: number, userId: number }) {
+    async addLike(likeData: { videoId: number; userId: number }) {
         try {
             // Kiểm tra đã like chưa
             const existingLike = await this.prismaService.like.findUnique({
@@ -18,19 +18,19 @@ export class LikeService {
             });
 
             if (existingLike) {
-                return { message: 'User already liked this video', data: existingLike };
+                return { message: 'Đã thích video này rồi', data: existingLike };
             }
 
-            const like = await this.prismaService.like.create({
+            await this.prismaService.like.create({
                 data: {
                     userId: likeData.userId,
                     videoId: likeData.videoId,
                 },
             });
 
-            return { message: 'Like added successfully', success: true };
+            return { message: 'Đã thêm lượt thích thành công', success: true };
         } catch (error) {
-            return { message: 'Error adding like', error: error.message, success: false };
+            return { message: 'Lỗi khi thêm lượt thích', error: error.message, success: false };
         }
     }
 
@@ -47,10 +47,10 @@ export class LikeService {
             });
 
             if (!existingLike) {
-                return { message: 'User has not liked this video yet', success: false };
+                return { message: 'Chưa thích video này', success: false };
             }
 
-            const like = await this.prismaService.like.delete({
+            await this.prismaService.like.delete({
                 where: {
                     userId_videoId: {
                         userId: likeData.userId,
@@ -59,59 +59,56 @@ export class LikeService {
                 },
             });
 
-            return { message: 'Like removed successfully', success: true };
+            return { message: 'Đã bỏ thích thành công', success: true };
         } catch (error) {
-            return { message: 'Error removing like', error: error.message, success: false };
+            return { message: 'Lỗi khi bỏ thích', error: error.message, success: false };
         }
     }
+
     async getLikeCount(videoId: number) {
         try {
             const likeCount = await this.prismaService.like.count({
-                where: {
-                    videoId: videoId,
-                },
+                where: { videoId },
             });
-            return { message: 'Like count retrieved successfully', data: likeCount };
+            return { message: 'Lấy số lượt thích thành công', data: likeCount };
         } catch (error) {
-            return { message: 'Error retrieving like count', error: error.message };
+            return { message: 'Lỗi khi lấy số lượt thích', error: error.message };
         }
     }
+
     async getVideoUserLike(videoId: number, userId: number) {
         try {
             const like = await this.prismaService.like.findUnique({
                 where: {
                     userId_videoId: {
-                        userId: userId,
-                        videoId: videoId,
+                        userId,
+                        videoId,
                     },
                 },
             });
-            return { message: 'User like status retrieved successfully', data: like ? true : false };
+            return { message: 'Lấy trạng thái thích thành công', data: !!like };
         } catch (error) {
-            return { message: 'Error retrieving user like status', error: error.message };
+            return { message: 'Lỗi khi lấy trạng thái thích', error: error.message };
         }
     }
+
     async listLikes(userId: number, skip = 0, take = 10) {
         try {
             const likes = await this.prismaService.like.findMany({
                 where: { userId },
-                orderBy: {
-                    id: 'desc', // 👈 id lớn hơn thì mới hơn
-                },
+                orderBy: { id: 'desc' }, // id lớn hơn thì mới hơn
                 skip,
                 take,
-                include: {
-                    video: true, // lấy luôn video từ like
-                },
+                include: { video: true },
             });
 
             return {
-                message: 'User likes retrieved successfully',
-                data: likes.map(like => like.video), // chỉ trả về video
+                message: 'Lấy danh sách video đã thích thành công',
+                data: likes.map(like => like.video),
             };
         } catch (error) {
             return {
-                message: 'Error retrieving user likes',
+                message: 'Lỗi khi lấy danh sách video đã thích',
                 error: error.message,
             };
         }

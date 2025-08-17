@@ -20,7 +20,7 @@ export class FollowService {
             if (existingFollow) {
                 return {
                     success: false,
-                    message: 'Already following this user',
+                    message: 'Đã theo dõi người dùng này',
                 };
             }
 
@@ -34,13 +34,13 @@ export class FollowService {
 
             return {
                 success: true,
-                message: 'Follow successful',
+                message: 'Theo dõi thành công',
                 data: follow,
             };
         } catch (error) {
             return {
                 success: false,
-                message: 'Error following user',
+                message: 'Lỗi khi theo dõi người dùng',
             };
         }
     }
@@ -59,7 +59,7 @@ export class FollowService {
             if (!existingFollow) {
                 return {
                     success: false,
-                    message: 'Not following this user',
+                    message: 'Không theo dõi người dùng này',
                 };
             }
 
@@ -75,12 +75,12 @@ export class FollowService {
 
             return {
                 success: true,
-                message: 'Unfollow successful',
+                message: 'Hủy theo dõi thành công',
             };
         } catch (error) {
             return {
                 success: false,
-                message: 'Error unfollowing user',
+                message: 'Lỗi khi hủy theo dõi người dùng',
             };
         }
     }
@@ -105,7 +105,7 @@ export class FollowService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error fetching followers',
+                message: 'Lỗi khi lấy danh sách người theo dõi',
                 error: error.message,
             };
         }
@@ -131,7 +131,7 @@ export class FollowService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error fetching following',
+                message: 'Lỗi khi lấy danh sách người đang theo dõi',
                 error: error.message,
             };
         }
@@ -148,7 +148,7 @@ export class FollowService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error counting followers',
+                message: 'Lỗi khi đếm người theo dõi',
                 error: error.message,
             };
         }
@@ -165,7 +165,7 @@ export class FollowService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Error counting following',
+                message: 'Lỗi khi đếm người đang theo dõi',
                 error: error.message,
             };
         }
