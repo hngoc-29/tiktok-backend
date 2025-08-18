@@ -37,7 +37,7 @@ export class AuthService {
 
         // Trả về user (loại bỏ password) và token
         const { password: _, ...userWithoutPassword } = user;
-        return { user: userWithoutPassword, token, refreshToken };
+        return { user: userWithoutPassword, token, refreshToken, success: true };
     }
 
     async signUp(body): Promise<any> {
@@ -75,7 +75,9 @@ export class AuthService {
             }
         });
 
-        return user;
+        return {
+            success: true
+        };
     }
     async refreshToken(user: any): Promise<any> {
         if (!user) {
@@ -83,7 +85,7 @@ export class AuthService {
         }
         const newToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1d' });
         const newRefreshToken = jwt.sign({ id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        return { user, token: newToken, refreshToken: newRefreshToken };
+        return { user, token: newToken, refreshToken: newRefreshToken, success: true };
     }
 
     async verifyEmailToken(token: string): Promise<any> {
@@ -108,7 +110,7 @@ export class AuthService {
         const payload = { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin };
         const accesstoken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
         const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        return { message: 'Xác thực email thành công', token: accesstoken, refreshToken };
+        return { message: 'Xác thực email thành công', token: accesstoken, refreshToken, success: true };
     }
 
     async sendVerificationEmail(email: string, token: string): Promise<{ success: boolean, message?: string }> {

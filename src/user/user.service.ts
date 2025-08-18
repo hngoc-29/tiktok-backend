@@ -5,6 +5,29 @@ import { PrismaService } from 'src/config/database';
 export class UserService {
     constructor(private prisma: PrismaService) { }
 
+    async getUserByEmail(email: string) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: {
+                    email,
+                    active: true,
+                },
+                omit: {
+                    password: true,
+                },
+            });
+            if (!user) {
+                throw new Error('Không tìm thấy người dùng');
+            }
+            return {
+                success: true,
+                user,
+            };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    }
+
     async getUserByUsername(username: string) {
         try {
             const user = await this.prisma.user.findUnique({

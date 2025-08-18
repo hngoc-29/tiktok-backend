@@ -20,6 +20,12 @@ export class UserController {
         private readonly cloudinaryService: CloudinaryService
     ) { }
 
+    @Get('me')
+    getProfile(@Req() req: Request) {
+        const email = req['user']?.email;
+        return this.userService.getUserByEmail(email);
+    }
+
     @Get()
     findProducts(@Query('username') username: string) {
         return this.userService.getUserByUsername(username);

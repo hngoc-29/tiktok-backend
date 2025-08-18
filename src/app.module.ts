@@ -31,6 +31,7 @@ export class AppModule {
         { path: 'auth/reset-password', method: RequestMethod.POST },
         //user
         { path: 'user', method: RequestMethod.PUT },
+        { path: 'user/me', method: RequestMethod.GET },
         //video
         { path: 'video', method: RequestMethod.POST },
         { path: 'video/random-following-video', method: RequestMethod.GET },
