@@ -109,32 +109,49 @@ export class VideoService {
     }
 
     async fetchVideosRandom(excludeIds: number[] = [], n: number = 3): Promise<any[]> {
-        const videos = await this.prisma.video.findMany({
-            where: excludeIds.length ? { id: { notIn: excludeIds } } : {},
-            orderBy: { createdAt: 'desc' },
-            take: n,
-            select: {
-                id: true,
-                title: true,
-                url: true,
-                thumbnailUrl: true,
-                userId: true,
-                createdAt: true,
-                path: true,
-                _count: {
-                    select: {
-                        likes: true,
-                        comments: true,
-                    }
-                }
-            }
-        });
+        const exclude = excludeIds.length
+            ? `WHERE v.id NOT IN (${excludeIds.join(",")})`
+            : "";
 
+        const videos = await this.prisma.$queryRawUnsafe<any[]>(`
+        SELECT v.id, v.title, v.url, v.thumbnailUrl, v.userId, v.createdAt, v.path,
+               (SELECT COUNT(*) FROM \`Like\` l WHERE l.videoId = v.id) as likeCount,
+               (SELECT COUNT(*) FROM \`Comment\` c WHERE c.videoId = v.id) as commentCount
+        FROM \`Video\` v
+        ${exclude}
+        ORDER BY RAND()
+        LIMIT ${n};
+    `);
+
+        // ✅ Fix BigInt -> number
         return videos.map(v => ({
             ...v,
-            likeCount: v._count.likes,
-            commentCount: v._count.comments,
+            likeCount: Number(v.likeCount),
+            commentCount: Number(v.commentCount),
         }));
+    }
+
+    async deleteVideos(userId: number, videoId: number) {
+        try {
+            // Xóa các bảng con trước để tránh lỗi foreign key
+            await this.prisma.comment.deleteMany({ where: { videoId } });
+            await this.prisma.like.deleteMany({ where: { videoId } });
+
+            // Sau đó mới xoá video
+            await this.prisma.video.delete({
+                where: {
+                    id: videoId,
+                    userId,
+                },
+            });
+
+            return { success: true, message: "Xóa video thành công" };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message || "Lỗi khi xóa video",
+            };
+        }
     }
 
     async fetchFollowingVideos(userId: number, skip = 0, take = 10) {
@@ -199,26 +216,6 @@ export class VideoService {
             return {
                 success: false,
                 message: 'Lỗi khi lấy video của người dùng'
-            };
-        }
-    }
-
-    async deleteVideos(userId: number, videoId: number) {
-        try {
-            const videos = await this.prisma.video.delete({
-                where: {
-                    userId,
-                    id: videoId
-                },
-            });
-            return {
-                success: true,
-                message: 'Xóa video thành công'
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Lỗi khi xóa video'
             };
         }
     }

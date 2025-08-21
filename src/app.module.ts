@@ -24,7 +24,6 @@ export class AppModule {
       .apply(AuthMiddleware)
       .forRoutes(
         //auth
-        { path: 'auth/refresh-token', method: RequestMethod.POST },
         { path: 'auth/send-verification-email', method: RequestMethod.POST },
         { path: 'auth/verify-email', method: RequestMethod.POST },
         //user

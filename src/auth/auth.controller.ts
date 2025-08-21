@@ -55,8 +55,7 @@ export class AuthController {
     }
 
     @Post('refresh-token')
-    async refreshToken(@Req() req: Request) {
-        // req.user đã được gắn ở middleware
-        return this.authService.refreshToken(req['user']);
+    async refreshToken(@Body('refreshToken') refreshToken: string) {
+        return this.authService.refreshToken(refreshToken);
     }
 }
