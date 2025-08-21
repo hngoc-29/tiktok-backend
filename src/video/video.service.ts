@@ -59,18 +59,19 @@ export class VideoService {
                     url: uploadResult.secure_url,
                     thumbnailUrl: uploadResultThumbnail?.secure_url || null,
                     userId: videoData.userId,
-                    path, // Lưu path vào DB
+                    path,
                 },
             }),
             success: true,
-            message: 'Video created successfully',
+            message: 'Tạo video thành công',
         };
     }
 
     async fetchVideos(path?: string): Promise<any> {
         if (!path) {
-            return { success: false, message: 'Thiếu path' };
+            return { success: false, message: 'Thiếu đường dẫn video' };
         }
+
         const video = await this.prisma.video.findUnique({
             where: { path },
             select: {
@@ -78,66 +79,108 @@ export class VideoService {
                 title: true,
                 url: true,
                 thumbnailUrl: true,
+                path: true,
                 userId: true,
                 createdAt: true,
+                _count: {
+                    select: {
+                        likes: true,
+                        comments: true,
+                    }
+                }
             },
         });
+
         if (!video) {
             return {
                 success: false,
-                message: 'Video not found'
-            }
+                message: 'Không tìm thấy video'
+            };
         }
+
         return {
             success: true,
-            video
-        }
+            video: {
+                ...video,
+                likeCount: video._count.likes,
+                commentCount: video._count.comments,
+            }
+        };
     }
 
     async fetchVideosRandom(excludeIds: number[] = [], n: number = 3): Promise<any[]> {
-        const excludeCondition = excludeIds.length
-            ? `WHERE id NOT IN (${excludeIds.join(',')})`
-            : '';
-        return this.prisma.$queryRawUnsafe(`
-            SELECT id, title, url, thumbnailUrl, userId, createdAt
-            FROM Video
-            ${excludeCondition}
-            ORDER BY RAND()
-            LIMIT ${n}
-        `);
+        const videos = await this.prisma.video.findMany({
+            where: excludeIds.length ? { id: { notIn: excludeIds } } : {},
+            orderBy: { createdAt: 'desc' },
+            take: n,
+            select: {
+                id: true,
+                title: true,
+                url: true,
+                thumbnailUrl: true,
+                userId: true,
+                createdAt: true,
+                path: true,
+                _count: {
+                    select: {
+                        likes: true,
+                        comments: true,
+                    }
+                }
+            }
+        });
+
+        return videos.map(v => ({
+            ...v,
+            likeCount: v._count.likes,
+            commentCount: v._count.comments,
+        }));
     }
 
     async fetchFollowingVideos(userId: number, skip = 0, take = 10) {
         try {
-            // Lấy danh sách ID những user mà mình follow
             const followingIds = await this.prisma.follow.findMany({
                 where: { followerId: userId },
                 select: { followingId: true },
             }).then(follows => follows.map(f => f.followingId));
 
-            // Nếu không follow ai thì trả rỗng luôn
             if (followingIds.length === 0) {
                 return { success: true, data: [] };
             }
 
-            // Lấy video của những user đó
             const followingVideos = await this.prisma.video.findMany({
-                where: {
-                    userId: { in: followingIds },
-                },
-                orderBy: { createdAt: 'desc' }, // mới nhất trước
+                where: { userId: { in: followingIds } },
+                orderBy: { createdAt: 'desc' },
                 skip,
                 take,
+                select: {
+                    id: true,
+                    title: true,
+                    url: true,
+                    thumbnailUrl: true,
+                    userId: true,
+                    createdAt: true,
+                    _count: {
+                        select: {
+                            likes: true,
+                            comments: true,
+                        }
+                    }
+                }
             });
 
             return {
                 success: true,
-                data: followingVideos,
+                data: followingVideos.map(v => ({
+                    ...v,
+                    likeCount: v._count.likes,
+                    commentCount: v._count.comments,
+                })),
             };
         } catch (error) {
             return {
                 success: false,
-                message: 'Lỗi khi lấy video theo người theo dõi',
+                message: 'Lỗi khi lấy danh sách video từ người theo dõi',
                 error: error.message,
             };
         }
@@ -155,7 +198,27 @@ export class VideoService {
         } catch (error) {
             return {
                 success: false,
-                message: 'Lỗi khi lấy video'
+                message: 'Lỗi khi lấy video của người dùng'
+            };
+        }
+    }
+
+    async deleteVideos(userId: number, videoId: number) {
+        try {
+            const videos = await this.prisma.video.delete({
+                where: {
+                    userId,
+                    id: videoId
+                },
+            });
+            return {
+                success: true,
+                message: 'Xóa video thành công'
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message || 'Lỗi khi xóa video'
             };
         }
     }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Post, Body, Req, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Request } from 'express';
 
@@ -31,7 +31,7 @@ export class AuthController {
     async sendVerificationEmail(@Req() req: Request) {
         const email = req['user']?.email;
         if (!email) {
-            return { success: false, message: 'Không tìm thấy email trong token' };
+            return { success: false, message: 'Email chưa đăng kí' };
         }
         return this.authService.handleSendVerificationEmail(email);
     }
@@ -42,21 +42,16 @@ export class AuthController {
     }
 
     @Post('send-reset-email')
-    async sendResetEmail(@Req() req: Request) {
-        const email = req['user']?.email;
+    async sendResetEmail(@Query('email') email) {
         if (!email) {
-            return { success: false, message: 'Không tìm thấy email trong token' };
+            return { success: false, message: 'Email chưa đăng kí' };
         }
         return this.authService.sendForgotPasswordEmail(email);
     }
 
     @Post('reset-password')
     async resetPassword(@Req() req: Request, @Body('token') token: string, @Body('newPassword') newPassword: string) {
-        const userId = req['user']?.id;
-        if (!userId) {
-            return { success: false, message: 'Không tìm thấy ID người dùng trong token' };
-        }
-        return this.authService.resetPassword(token, newPassword, userId);
+        return this.authService.resetPassword(token, newPassword);
     }
 
     @Post('refresh-token')

@@ -5,6 +5,30 @@ import { PrismaService } from 'src/config/database';
 export class FollowService {
     constructor(private readonly prismaService: PrismaService) { }
 
+    async user(followerId: number, followingId: number) {
+        try {
+            // Kiểm tra đã follow chưa
+            const existingFollow = await this.prismaService.follow.findUnique({
+                where: {
+                    followerId_followingId: { // 👈 cần @@unique([followerId, followingId]) trong schema
+                        followerId,
+                        followingId,
+                    },
+                },
+            });
+
+            return {
+                success: true,
+                data: existingFollow ? true : false
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: 'Lỗi khi theo dõi người dùng',
+            };
+        }
+    }
+
     async followUser(followerId: number, followingId: number) {
         try {
             // Kiểm tra đã follow chưa
@@ -88,28 +112,49 @@ export class FollowService {
         try {
             const followers = await this.prismaService.follow.findMany({
                 where: { followingId: userId },
-                orderBy: { id: 'desc' }, // 👈 id lớn hơn = follow mới hơn
+                orderBy: { id: 'desc' },
                 skip,
                 take,
                 include: {
                     follower: {
-                        select: { id: true, fullname: true, username: true }, // tuỳ bạn muốn lấy field nào
+                        select: {
+                            id: true,
+                            fullname: true,
+                            username: true,
+                            avatarUrl: true, // avatar user
+                            createdAt: true,
+                        },
                     },
                 },
             });
 
-            return {
-                success: true,
-                data: followers.map(f => f.follower), // chỉ trả về user follower
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Lỗi khi lấy danh sách người theo dõi',
-                error: error.message,
-            };
+            const data = await Promise.all(
+                followers.map(async (f) => {
+                    const u = f.follower;
+                    const [followersCount, followingCount, isFollowingBack] = await Promise.all([
+                        this.prismaService.follow.count({ where: { followingId: u.id } }),
+                        this.prismaService.follow.count({ where: { followerId: u.id } }),
+                        this.prismaService.follow.findUnique({
+                            where: { followerId_followingId: { followerId: userId, followingId: u.id } },
+                        }),
+                    ]);
+
+                    return {
+                        ...u,
+                        followersCount,
+                        followingCount,
+                        isFollowing: !!isFollowingBack, // người đang login có follow lại
+                    };
+                })
+            );
+
+            return { success: true, data };
+        } catch (error: any) {
+            return { success: false, message: 'Lỗi khi lấy danh sách followers', error: error.message };
         }
     }
+
+
     async getFollowing(userId: number, skip = 0, take = 10) {
         try {
             const following = await this.prismaService.follow.findMany({
@@ -119,23 +164,43 @@ export class FollowService {
                 take,
                 include: {
                     following: {
-                        select: { id: true, fullname: true, username: true },
+                        select: {
+                            id: true,
+                            fullname: true,
+                            username: true,
+                            avatarUrl: true,
+                            createdAt: true,
+                        },
                     },
                 },
             });
 
-            return {
-                success: true,
-                data: following.map(f => f.following),
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Lỗi khi lấy danh sách người đang theo dõi',
-                error: error.message,
-            };
+            const data = await Promise.all(
+                following.map(async (f) => {
+                    const u = f.following;
+                    const [followersCount, followingCount, isFollowingBack] = await Promise.all([
+                        this.prismaService.follow.count({ where: { followingId: u.id } }),
+                        this.prismaService.follow.count({ where: { followerId: u.id } }),
+                        this.prismaService.follow.findUnique({
+                            where: { followerId_followingId: { followerId: u.id, followingId: userId } },
+                        }),
+                    ]);
+
+                    return {
+                        ...u,
+                        followersCount,
+                        followingCount,
+                        isFollowing: !!isFollowingBack,
+                    };
+                })
+            );
+
+            return { success: true, data };
+        } catch (error: any) {
+            return { success: false, message: 'Lỗi khi lấy danh sách following', error: error.message };
         }
     }
+
     async countFollowers(userId: number) {
         try {
             const count = await this.prismaService.follow.count({

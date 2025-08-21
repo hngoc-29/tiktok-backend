@@ -5,6 +5,12 @@ import { FollowService } from './follow.service';
 export class FollowController {
     constructor(private readonly followService: FollowService) { }
 
+    @Get(`user`)
+    async user(@Req() req: any, @Query(`followingId`) followingId: number) {
+        const followerId = req.user.id;
+        return this.followService.user(followerId, Number(followingId));
+    }
+
     @Post('followUser')
     async followUser(@Req() req: any, @Body() data: { followingId: number }) {
         const followerId = req.user.id;
@@ -28,13 +34,11 @@ export class FollowController {
         return this.followService.getFollowing(userId, Number(skip), Number(take));
     }
     @Get('countFollowers')
-    async countFollowers(@Req() req: any) {
-        const userId = req.user.id;
-        return this.followService.countFollowers(userId);
+    async countFollowers(@Req() req: any, @Query('userId') userId: number) {
+        return this.followService.countFollowers(Number(userId));
     }
     @Get('countFollowing')
-    async countFollowing(@Req() req: any) {
-        const userId = req.user.id;
-        return this.followService.countFollowing(userId);
+    async countFollowing(@Req() req: any, @Query('userId') userId: number) {
+        return this.followService.countFollowing(Number(userId));
     }
 }

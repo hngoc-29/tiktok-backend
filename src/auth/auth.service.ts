@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken'; // Thêm dòng này
 import { PrismaService } from '../config/database';
@@ -40,44 +40,64 @@ export class AuthService {
         return { user: userWithoutPassword, token, refreshToken, success: true };
     }
 
-    async signUp(body): Promise<any> {
-        const { fullname, username, email, password } = body;
+    async signUp(body: any): Promise<any> {
+        try {
+            const { fullname, username, email, password } = body;
 
-        // Kiểm tra xem user đã tồn tại chưa
-        const existingUser = await this.prisma.user.findFirst({
-            where: {
-                OR: [
-                    { email }
-                ]
+            if (!fullname || !username || !email || !password) {
+                throw new BadRequestException('Vui lòng điền đầy đủ thông tin');
             }
-        });
 
-        if (existingUser) {
-            throw new UnauthorizedException('Người dùng đã tồn tại');
-        }
-
-        if (password.length < 6) {
-            throw new UnauthorizedException('Mật khẩu phải có ít nhất 6 ký tự');
-        }
-
-        // Mã hóa password
-        const saltOrRounds = 10;
-        const hash = await bcrypt.hash(password, saltOrRounds);
-
-        // Tạo user mới
-        const user = await this.prisma.user.create({
-            data: {
-                fullname,
-                username,
-                email,
-                password: hash,
-                avatarUrl: `https://taphoammo.net/img/tai-khoan-tiktok-clone-avatar-cong-khai-tim-va-follow-co-cookie-tut-ngon.png`
+            if (password.length < 6) {
+                throw new BadRequestException('Mật khẩu phải có ít nhất 6 ký tự');
             }
-        });
 
-        return {
-            success: true
-        };
+            // Kiểm tra xem user đã tồn tại chưa
+            const existingUser = await this.prisma.user.findFirst({
+                where: {
+                    OR: [
+                        { email },
+                        { username }
+                    ]
+                }
+            });
+
+            if (existingUser) {
+                throw new UnauthorizedException('Người dùng đã tồn tại');
+            }
+
+            // Mã hóa password
+            const saltOrRounds = 10;
+            const hash = await bcrypt.hash(password, saltOrRounds);
+
+            // Tạo user mới
+            await this.prisma.user.create({
+                data: {
+                    fullname,
+                    username,
+                    email,
+                    password: hash,
+                    avatarUrl: `https://taphoammo.net/img/tai-khoan-tiktok-clone-avatar-cong-khai-tim-va-follow-co-cookie-tut-ngon.png`
+                }
+            });
+
+            return {
+                success: true,
+                message: 'Tạo tài khoản thành công'
+            };
+
+        } catch (error: any) {
+            // Log ra để debug
+            console.error('Error signUp:', error);
+
+            // Nếu lỗi đã được bắt bằng Exception của Nest, trả trực tiếp
+            if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
+                throw error;
+            }
+
+            // Lỗi khác trả chung
+            throw new BadRequestException('Đã xảy ra lỗi khi tạo tài khoản');
+        }
     }
     async refreshToken(user: any): Promise<any> {
         if (!user) {
@@ -93,8 +113,15 @@ export class AuthService {
         const emailToken = await this.prisma.emailVerificationToken.findUnique({
             where: { token }
         });
-        if (!emailToken || emailToken.expiresAt < new Date()) {
-            throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
+
+        if (!emailToken) {
+            throw new UnauthorizedException('Token không hợp lệ');
+        }
+
+        // Ép kiểu Date sau khi chắc chắn emailToken không null
+        const expiresAt = new Date(emailToken.expiresAt);
+        if (expiresAt < new Date()) {
+            throw new UnauthorizedException('Token đã hết hạn');
         }
 
         // Kích hoạt tài khoản user
@@ -115,7 +142,7 @@ export class AuthService {
 
     async sendVerificationEmail(email: string, token: string): Promise<{ success: boolean, message?: string }> {
         try {
-            const verificationUrl = `${process.env.BASE_URL}/auth/verify-email?token=${token}`;
+            const verificationUrl = `${process.env.BASE_URL}/verify-email?token=${token}`;
             await transporter.sendMail({
                 from: process.env.SMTP_USER,
                 to: email,
@@ -165,7 +192,7 @@ export class AuthService {
         });
         // Gửi email
         try {
-            const resetUrl = `${process.env.BASE_URL}/auth/reset-password?token=${token}`;
+            const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}`;
             await transporter.sendMail({
                 from: process.env.SMTP_USER,
                 to: email,
@@ -182,10 +209,10 @@ export class AuthService {
         }
     }
 
-    async resetPassword(token: string, newPassword: string, userId: number): Promise<{ success: boolean; message?: string }> {
+    async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
         // Tìm token
         const resetToken = await this.prisma.passwordResetToken.findUnique({ where: { token } });
-        if (!resetToken || resetToken.expiresAt < new Date() && resetToken.userId !== userId) {
+        if (!resetToken || resetToken.expiresAt < new Date()) {
             return { success: false, message: 'Token không hợp lệ hoặc đã hết hạn' };
         }
         if (newPassword.length < 6) {

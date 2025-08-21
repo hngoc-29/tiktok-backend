@@ -56,6 +56,14 @@ export class VideoController {
         if (!userId) {
             return { success: false, message: 'Thiếu userId' };
         }
-        return this.videoService.fetchVideosByUserId(userId);
+        return this.videoService.fetchVideosByUserId(Number(userId));
+    }
+    @Post(`delete`)
+    async deleteVideos(@Req() req: Request, @Query('videoId') videoId: number) {
+        const userId = req['user']?.id;
+        if (!videoId) {
+            return { success: false, message: 'Thiếu videoId' };
+        }
+        return this.videoService.deleteVideos(Number(userId), Number(videoId));
     }
 }

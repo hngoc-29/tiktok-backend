@@ -65,7 +65,7 @@ export class CommentService {
             take, // số lượng muốn lấy (mặc định 10)
             include: {
                 user: {
-                    select: { id: true, fullname: true }, // lấy thêm info user nếu cần
+                    select: { id: true, fullname: true, avatarUrl: true }, // lấy thêm info user nếu cần
                 },
             },
         });

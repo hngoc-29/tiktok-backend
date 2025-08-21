@@ -16,9 +16,9 @@ export class NotificationController {
     @Post('update/:id')
     updateNotification(
         @Param('id') id: number,
-        @Body() { title, content }: { title: string; content: string }
+        @Body() body: { title?: string; content?: string }
     ) {
-        return this.notificationService.updateNotification(Number(id), { title, content });
+        return this.notificationService.updateNotification(Number(id), body);
     }
     @Post('update-active/:id')
     updateActive(
@@ -27,12 +27,16 @@ export class NotificationController {
     ) {
         return this.notificationService.updateActive(Number(id), active);
     }
-    @Get('get-notification/:id')
-    getNotification(@Param('id') id: number) {
+    @Get('active')
+    getNotification() {
         return this.notificationService.getActiveNotification();
     }
     @Get('get-all')
     getAllNotifications() {
         return this.notificationService.getAllNotifications();
+    }
+    @Get('get-active')
+    getActiveNotification() {
+        return this.notificationService.getActiveNotification();
     }
 }

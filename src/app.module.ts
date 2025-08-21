@@ -27,14 +27,14 @@ export class AppModule {
         { path: 'auth/refresh-token', method: RequestMethod.POST },
         { path: 'auth/send-verification-email', method: RequestMethod.POST },
         { path: 'auth/verify-email', method: RequestMethod.POST },
-        { path: 'auth/send-reset-email', method: RequestMethod.POST },
-        { path: 'auth/reset-password', method: RequestMethod.POST },
         //user
         { path: 'user', method: RequestMethod.PUT },
         { path: 'user/me', method: RequestMethod.GET },
+        { path: 'user/update-password', method: RequestMethod.PUT },
         //video
         { path: 'video', method: RequestMethod.POST },
         { path: 'video/random-following-video', method: RequestMethod.GET },
+        { path: 'video/delete', method: RequestMethod.POST },
         //like
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
@@ -44,6 +44,7 @@ export class AppModule {
         { path: 'comment/create', method: RequestMethod.POST },
         { path: 'comment/delete', method: RequestMethod.POST },
         //follow
+        { path: 'follow/user', method: RequestMethod.GET },
         { path: 'follow/followUser', method: RequestMethod.POST },
         { path: 'follow/unfollowUser', method: RequestMethod.POST },
         { path: 'follow/getFollowers', method: RequestMethod.GET },
@@ -58,9 +59,11 @@ export class AppModule {
       .forRoutes(
         //user
         { path: 'user', method: RequestMethod.PUT },
+        { path: 'user/update-password', method: RequestMethod.PUT },
         //video
         { path: 'video', method: RequestMethod.POST },
         { path: 'video/random-following-video', method: RequestMethod.GET },
+        { path: 'video/delete', method: RequestMethod.POST },
         //like
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },

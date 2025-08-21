@@ -70,9 +70,9 @@ export class LikeService {
             const likeCount = await this.prismaService.like.count({
                 where: { videoId },
             });
-            return { message: 'Lấy số lượt thích thành công', data: likeCount };
+            return { message: 'Lấy số lượt thích thành công', data: likeCount, success: true };
         } catch (error) {
-            return { message: 'Lỗi khi lấy số lượt thích', error: error.message };
+            return { message: 'Lỗi khi lấy số lượt thích', error: error.message, success: false };
         }
     }
 
@@ -86,9 +86,9 @@ export class LikeService {
                     },
                 },
             });
-            return { message: 'Lấy trạng thái thích thành công', data: !!like };
+            return { message: 'Lấy trạng thái thích thành công', data: !!like, success: true };
         } catch (error) {
-            return { message: 'Lỗi khi lấy trạng thái thích', error: error.message };
+            return { message: 'Lỗi khi lấy trạng thái thích', error: error.message, success: false };
         }
     }
 
@@ -105,11 +105,13 @@ export class LikeService {
             return {
                 message: 'Lấy danh sách video đã thích thành công',
                 data: likes.map(like => like.video),
+                success: true
             };
         } catch (error) {
             return {
                 message: 'Lỗi khi lấy danh sách video đã thích',
                 error: error.message,
+                success: true
             };
         }
     }

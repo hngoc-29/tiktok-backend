@@ -38,11 +38,14 @@ export class NotificationService {
         }
     }
 
-    async updateNotification(id: number, { title, content }: { title: string; content: string }) {
+    async updateNotification(id: number, body: { title?: string; content?: string }) {
         try {
+            if (!body.title && !body.content) {
+                return { success: false, message: "Không có dữ liệu để cập nhật" };
+            }
             const noti = await this.prisma.notification.update({
                 where: { id },
-                data: { title, content },
+                data: body,
             });
             return {
                 success: true,
@@ -52,7 +55,7 @@ export class NotificationService {
         } catch (error) {
             return {
                 success: false,
-                message: "Cập nhật thông báo thất bại",
+                message: error.message || "Cập nhật thông báo thất bại",
             };
         }
     }
@@ -120,4 +123,6 @@ export class NotificationService {
             };
         }
     }
+
+    
 }

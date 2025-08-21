@@ -31,6 +31,11 @@ export class UserController {
         return this.userService.getUserByUsername(username);
     }
 
+    @Get("info")
+    findUserById(@Query('userId') userId: number) {
+        return this.userService.getUserById(Number(userId));
+    }
+
     @Put()
     @UseInterceptors(FileInterceptor('avatar'))
     async updateUser(
@@ -47,5 +52,11 @@ export class UserController {
         }
 
         return this.userService.updateUser(email, updateData);
+    }
+
+    @Put('update-password')
+    async updatePassword(@Req() req: Request, @Body() updateData: { password: string; newPass: string }) {
+        const id = req['user']?.id;
+        return this.userService.updatePassword(id, updateData);
     }
 }
