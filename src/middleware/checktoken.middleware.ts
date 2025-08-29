@@ -7,7 +7,7 @@ export class AuthMiddleware implements NestMiddleware {
     use(req: Request, res: Response, next: NextFunction) {
         const token = req.headers['authorization'];
         if (!token || !token.startsWith('Bearer ')) {
-            throw new UnauthorizedException('Token không tồn tại hoặc không hợp lệ');
+            throw new UnauthorizedException('Chưa đăng nhập');
         }
         const jwtToken = token.split(' ')[1];
         try {
@@ -16,7 +16,7 @@ export class AuthMiddleware implements NestMiddleware {
             req['user'] = decoded;
             next();
         } catch (err) {
-            throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
+            throw new UnauthorizedException('Chưa đăng nhập');
         }
     }
 }
