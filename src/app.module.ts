@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -14,7 +15,7 @@ import { NotificationModule } from './notification/notification.module';
 import { CheckAdminMiddleware } from './middleware/checkAdmin.middleware';
 
 @Module({
-  imports: [AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule, FollowModule, NotificationModule],
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule, VideoModule, CloudinaryModule, LikeModule, CommentModule, FollowModule, NotificationModule],
   controllers: [AppController],
   providers: [AppService],
 })
