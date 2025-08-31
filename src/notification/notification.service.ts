@@ -16,6 +16,7 @@ export class NotificationService {
                 data: noti,
             };
         } catch (error) {
+            console.log(error)
             return {
                 success: false,
                 message: "Tạo thông báo thất bại",
@@ -124,5 +125,5 @@ export class NotificationService {
         }
     }
 
-    
+
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseInterceptors, UploadedFiles, Query, Get } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseInterceptors, UploadedFiles, Query, Get, Put } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { VideoService } from './video.service';
 
@@ -65,5 +65,22 @@ export class VideoController {
             return { success: false, message: 'Thiếu videoId' };
         }
         return this.videoService.deleteVideos(Number(userId), Number(videoId));
+    }
+
+    @Put()
+    @UseInterceptors(AnyFilesInterceptor())
+    async updateVideo(
+        @Req() req: Request,
+        @Body() body: any,
+        @UploadedFiles() files: Express.Multer.File[],
+    ) {
+        const videoData: any = {
+            id: Number(body.id),
+            title: body.title || null,
+            fileThumbnail: files.find(f => f.fieldname === 'fileThumbnail') || null,
+            userId: req['user']?.id,
+        };
+
+        return this.videoService.updateVideo(videoData);
     }
 }

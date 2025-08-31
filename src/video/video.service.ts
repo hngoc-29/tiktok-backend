@@ -67,6 +67,41 @@ export class VideoService {
         };
     }
 
+    async updateVideo(videoData: any): Promise<any> {
+        const updatePayload: any = {};
+
+        // Nếu có title thì mới update
+        if (videoData.title) {
+            updatePayload.title = videoData.title;
+        }
+
+        // Nếu có file thumbnail thì upload rồi update
+        if (videoData.fileThumbnail) {
+            const uploadResultThumbnail = await this.cloudinaryService.uploadFile(
+                videoData.fileThumbnail,
+                'tiktok/thumbnail',
+                'image',
+            );
+            updatePayload.thumbnailUrl = uploadResultThumbnail.secure_url;
+        }
+
+        if (Object.keys(updatePayload).length === 0) {
+            return {
+                success: false,
+                message: 'Không có dữ liệu để cập nhật',
+            };
+        }
+
+        return {
+            video: await this.prisma.video.update({
+                where: { id: videoData.id, userId: videoData.userId },
+                data: updatePayload,
+            }),
+            success: true,
+            message: 'Cập nhật video thành công',
+        };
+    }
+
     async fetchVideos(path?: string): Promise<any> {
         if (!path) {
             return { success: false, message: 'Thiếu đường dẫn video' };
