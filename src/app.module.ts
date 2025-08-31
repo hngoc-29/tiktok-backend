@@ -35,6 +35,7 @@ export class AppModule {
         { path: 'video', method: RequestMethod.POST },
         { path: 'video/random-following-video', method: RequestMethod.GET },
         { path: 'video/delete', method: RequestMethod.POST },
+        { path: 'video/save', method: RequestMethod.POST },
         //like
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },
@@ -64,6 +65,7 @@ export class AppModule {
         { path: 'video', method: RequestMethod.POST },
         { path: 'video/random-following-video', method: RequestMethod.GET },
         { path: 'video/delete', method: RequestMethod.POST },
+        { path: 'video/save', method: RequestMethod.POST },
         //like
         { path: 'like/add', method: RequestMethod.POST },
         { path: 'like/remove', method: RequestMethod.POST },

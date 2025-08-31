@@ -254,4 +254,41 @@ export class VideoService {
             };
         }
     }
+
+    // 👉 service mới saveVideo (video đã upload từ client)
+    async saveVideo(videoData): Promise<any> {
+        // Nếu client gửi thumbnail file thì upload, còn nếu gửi sẵn URL thì lấy luôn
+        let thumbnailUrl: string | null = null;
+        if (videoData.fileThumbnail) {
+            const thumb = await this.cloudinaryService.uploadFile(
+                videoData.fileThumbnail,
+                'tiktok/thumbnail',
+                'image',
+            );
+            thumbnailUrl = thumb.secure_url;
+        } else if (videoData.thumbnailUrl) {
+            thumbnailUrl = videoData.thumbnailUrl;
+        }
+
+        // Sinh path unique
+        let path: string;
+        do {
+            path = generateRandomPath();
+        } while (await this.prisma.video.findUnique({ where: { path } }));
+
+        // Lưu vào DB
+        return {
+            video: await this.prisma.video.create({
+                data: {
+                    title: videoData.title,
+                    url: videoData.url, // secure_url client gửi lên
+                    thumbnailUrl,
+                    userId: videoData.userId,
+                    path,
+                },
+            }),
+            success: true,
+            message: 'Lưu video thành công',
+        };
+    }
 }
