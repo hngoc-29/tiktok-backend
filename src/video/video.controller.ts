@@ -40,7 +40,7 @@ export class VideoController {
         return this.videoService.fetchVideos(path);
     }
 
-    @Get()
+    @Get('list')
     async listVideos(
         @Query('skip') skip?: string,
         @Query('take') take?: string,
