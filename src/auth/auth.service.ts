@@ -39,64 +39,69 @@ export class AuthService {
   }
 
   async signUp(body: any): Promise<any> {
-    try {
-      const { fullname, username, email, password } = body;
+  try {
+    const { fullname, username, email, password } = body;
 
-      if (!fullname || !username || !email || !password) {
-        throw new BadRequestException('Vui lòng điền đầy đủ thông tin');
-      }
-
-      if (password.length < 6) {
-        throw new BadRequestException('Mật khẩu phải có ít nhất 6 ký tự');
-      }
-
-      // Kiểm tra xem user đã tồn tại chưa
-      const existingUser = await this.prisma.user.findFirst({
-        where: {
-          OR: [
-            { email },
-            { username }
-          ]
-        }
-      });
-
-      if (existingUser) {
-        throw new UnauthorizedException('Người dùng đã tồn tại');
-      }
-
-      // Mã hóa password
-      const saltOrRounds = 10;
-      const hash = await bcrypt.hash(password, saltOrRounds);
-
-      // Tạo user mới
-      await this.prisma.user.create({
-        data: {
-          fullname,
-          username,
-          email,
-          password: hash,
-          avatarUrl: `https://taphoammo.net/img/tai-khoan-tiktok-clone-avatar-cong-khai-tim-va-follow-co-cookie-tut-ngon.png`
-        }
-      });
-
-      return {
-        success: true,
-        message: 'Tạo tài khoản thành công'
-      };
-
-    } catch (error: any) {
-      // Log ra để debug
-      console.error('Error signUp:', error);
-
-      // Nếu lỗi đã được bắt bằng Exception của Nest, trả trực tiếp
-      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
-        throw error;
-      }
-
-      // Lỗi khác trả chung
-      throw new BadRequestException('Đã xảy ra lỗi khi tạo tài khoản');
+    if (!fullname || !username || !email || !password) {
+      throw new BadRequestException('Vui lòng điền đầy đủ thông tin');
     }
+
+    if (password.length < 6) {
+      throw new BadRequestException('Mật khẩu phải có ít nhất 6 ký tự');
+    }
+
+    // Kiểm tra username hợp lệ
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      throw new BadRequestException(
+        'Username chỉ được chứa chữ, số và dấu gạch dưới (_) và không được có dấu cách hay ký tự đặc biệt'
+      );
+    }
+
+    // Kiểm tra xem user đã tồn tại chưa
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      throw new UnauthorizedException('Người dùng đã tồn tại');
+    }
+
+    // Mã hóa password
+    const saltOrRounds = 10;
+    const hash = await bcrypt.hash(password, saltOrRounds);
+
+    // Tạo user mới
+    await this.prisma.user.create({
+      data: {
+        fullname,
+        username,
+        email,
+        password: hash,
+        avatarUrl: `https://taphoammo.net/img/tai-khoan-tiktok-clone-avatar-cong-khai-tim-va-follow-co-cookie-tut-ngon.png`
+      }
+    });
+
+    return {
+      success: true,
+      message: 'Tạo tài khoản thành công'
+    };
+
+  } catch (error: any) {
+    console.error('Error signUp:', error);
+
+    if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
+      throw error;
+    }
+
+    throw new BadRequestException('Đã xảy ra lỗi khi tạo tài khoản');
   }
+}
 
   async refreshToken(refreshToken: string): Promise<any> {
     try {
