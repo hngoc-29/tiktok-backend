@@ -291,4 +291,20 @@ export class VideoService {
             message: 'Lưu video thành công',
         };
     }
+
+    async countVideos() {
+        try {
+            const videoCount = await this.prisma.video.count();
+            return { data: videoCount, success: true };
+        } catch (error) {
+            return { message: 'Lỗi khi lấy số video', error: error.message, success: false };
+        }
+    }
+
+    async listVideos(skip = 0, take = 10) {
+        return this.prisma.video.findMany({
+            skip: Number(skip), // ép kiểu sang số
+            take: Number(take), // ép kiểu sang số
+        });
+    }
 }

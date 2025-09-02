@@ -59,4 +59,12 @@ export class UserController {
         const id = req['user']?.id;
         return this.userService.updatePassword(id, updateData);
     }
+    @Get('count')
+    async countVideos() {
+        return this.userService.countUsers();
+    }
+    @Get('list')
+    listComments(@Query('skip') skip: number = 0, @Query('take') take: number = 10) {
+        return this.userService.listUsers(Number(skip), Number(take));
+    }
 }

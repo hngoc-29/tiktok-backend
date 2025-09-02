@@ -126,4 +126,23 @@ export class UserService {
             return { success: false, message: error.message || 'Có lỗi xảy ra' };
         }
     }
+
+    async countUsers() {
+        try {
+            const userCount = await this.prisma.user.count();
+            return { data: userCount, success: true };
+        } catch (error) {
+            return { message: 'Lỗi khi lấy số video', error: error.message, success: false };
+        }
+    }
+
+    async listUsers(skip = 0, take = 10) {
+        return this.prisma.user.findMany({
+            skip, // bỏ qua bao nhiêu cái (dùng cho phân trang)
+            take, // số lượng muốn lấy
+            select: {
+                username: true,
+            }
+        });
+    }
 }

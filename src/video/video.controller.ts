@@ -40,6 +40,17 @@ export class VideoController {
         return this.videoService.fetchVideos(path);
     }
 
+    @Get()
+    async listVideos(
+        @Query('skip') skip?: string,
+        @Query('take') take?: string,
+    ) {
+        return this.videoService.listVideos(
+            Number(skip) || 0,
+            Number(take) || 10,
+        );
+    }
+
     @Get('random')
     async getRandomVideos(
         @Query('excludeIds') excludeIds?: string,
@@ -130,5 +141,10 @@ export class VideoController {
         };
 
         return this.videoService.saveVideo(videoData);
+    }
+
+    @Get('count')
+    async countVideos() {
+        return this.videoService.countVideos();
     }
 }
