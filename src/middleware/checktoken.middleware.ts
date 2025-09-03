@@ -11,7 +11,7 @@ export class AuthMiddleware implements NestMiddleware {
         }
         const jwtToken = token.split(' ')[1];
         try {
-            const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+            const decoded = jwt.verify(jwtToken, process.env.JWT_ACCESS_TOKEN);
             // Gắn thông tin user vào request nếu cần
             req['user'] = decoded;
             next();

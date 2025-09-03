@@ -30,8 +30,8 @@ export class AuthService {
 
     // Tạo JWT token
     const payload = { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, { expiresIn: '1d' });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_TOKEN, { expiresIn: '7d' });
 
     // Trả về user (loại bỏ password) và token
     const { password: _, ...userWithoutPassword } = user;
@@ -105,7 +105,7 @@ export class AuthService {
 
   async refreshToken(refreshToken: string): Promise<any> {
     try {
-      const decoded: any = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      const decoded: any = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN);
 
       // (Optionally) check DB nếu muốn đảm bảo refreshToken hợp lệ
       const user = await this.prisma.user.findUnique({ where: { id: decoded.id } });
@@ -113,13 +113,13 @@ export class AuthService {
 
       const newAccessToken = jwt.sign(
         { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET,
+        process.env.JWT_ACCESS_TOKEN,
         { expiresIn: '1d' }
       );
 
       const newRefreshToken = jwt.sign(
         { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET,
+        process.env.JWT_REFRESH_TOKEN,
         { expiresIn: '7d' }
       );
 
@@ -161,8 +161,8 @@ export class AuthService {
       where: { userId: emailToken.userId }
     });
     const payload = { id: user.id, email: user.email, username: user.username, active: user.active, isAdmin: user.isAdmin };
-    const accesstoken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const accesstoken = jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, { expiresIn: '1d' });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_TOKEN, { expiresIn: '7d' });
     return { message: 'Xác thực email thành công', token: accesstoken, refreshToken, success: true };
   }
 
